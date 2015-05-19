@@ -49,6 +49,14 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 
 float p = 3.1415926;
 
+int rpm = 1;
+int shift_up = 0;
+
+inline void Adafruit_ST7735::spiwrite(uint8_t c) {
+  SPDR = c;
+  while(!(SPSR & _BV(SPIF)));
+}
+
 void setup(void) {
   Serial.begin(9600);
   //Init the SD Card
@@ -82,6 +90,9 @@ void loop() {
   tftPrintOuterTemp();
   tftPrintEngineTemp();
   tftPrintVoltage();
+  if(shift_up == 1){
+    //tftPrintShiftUP(0);
+  }
   delay(10);
 }
 
@@ -163,43 +174,52 @@ void dravUI(){
   tft.setCursor(0, 0);    
   tft.setTextSize(1);
   tft.println("RPM");
+  //left, top, width, height
+  tft.fillRect(0, 10, 128, 25, ST7735_BLUE);
   tft.setCursor(0, 40);  
   tft.println("TEMP IN");
+  //left, top, width, height
+  tft.fillRect(0, 50, 63, 25, ST7735_BLUE);
   tft.setCursor(64, 40);  
   tft.println("TEMP OUT");
+  //left, top, width, height
+  tft.fillRect(64, 50, 128, 25, ST7735_BLUE);  
   tft.setCursor(0, 80);  
   tft.println("TEMP ENGINE");
+  //left, top, width, height
+  tft.fillRect(0, 90, 79, 25, ST7735_BLUE);  
   tft.setCursor(80, 80);  
   tft.println("VOLTAGE");
+  //left, top, width, height
+  tft.fillRect(80, 90, 48, 25, ST7735_BLUE);
 }
 
 void tftPrintRPM() {
-  //left, top, width, height
-  tft.fillRect(0, 10, 128, 25, ST7735_BLUE);
   //
   //char *string="";
   int frame = random(800, 6000);
+  //int frame = 1;
   //sprintf(string, "R%d", frame);
   //
   tft.setTextWrap(false);
-  tft.setCursor(10, 12);
+  tft.setCursor(10, 11);
   if(frame < 600)
-    {tft.setTextColor(ST7735_WHITE);}
+    {tft.setTextColor(ST7735_WHITE,ST7735_BLUE);}
   else if(frame >= 600 && frame <= 2900)
-    {tft.setTextColor(ST7735_GREEN);}
+    {tft.setTextColor(ST7735_GREEN,ST7735_BLUE);}
   else if(frame >= 2901 && frame <= 5200)
-    {tft.setTextColor(ST7735_YELLOW);}    
+    {tft.setTextColor(ST7735_YELLOW,ST7735_BLUE);}    
   else
-    {tft.setTextColor(ST7735_RED);}
+    {tft.setTextColor(ST7735_RED,ST7735_BLUE);}
   tft.setTextSize(3);
-  tft.println(frame);
   tftPrintRPMBar(frame);
   if(frame >= 2500){
-    tftPrintShiftUP(0);
+    shift_up = 1;
   }
   else{
-    tftPrintShiftUP(1);
+    shift_up = 0;
   }
+  tft.println(frame);
 }
 
 void tftPrintShiftUP(int _clear){
@@ -234,61 +254,55 @@ void tftPrintRPMBar(int value){
 }
 
 void tftPrintInnerTemp() {
-  //left, top, width, height
-  tft.fillRect(0, 50, 63, 25, ST7735_BLUE);
 //  tft.drawLine(62, 50, 62, 75, ST7735_BLACK);
   int frame = random(0, 40);
   tft.setTextWrap(false);
   tft.setCursor(10, 56);
   if(frame < 32)
-    {tft.setTextColor(ST7735_WHITE);}
+    {tft.setTextColor(ST7735_WHITE, ST7735_BLUE);}
   else
-    {tft.setTextColor(ST7735_RED);}
+    {tft.setTextColor(ST7735_RED, ST7735_BLUE);}
   tft.setTextSize(2);
   tft.println(frame);
 }
 
 void tftPrintOuterTemp() {  
-  //left, top, width, height
-  tft.fillRect(64, 50, 128, 25, ST7735_BLUE);
   int frame = random(0, 40);
+  //int frame = analogRead(5);
+  
   tft.setTextWrap(false);
   tft.setCursor(70, 56);
   if(frame < 32)
-    {tft.setTextColor(ST7735_WHITE);}
+    {tft.setTextColor(ST7735_WHITE, ST7735_BLUE);}
   else
-    {tft.setTextColor(ST7735_RED);}
+    {tft.setTextColor(ST7735_RED, ST7735_BLUE);}
   tft.setTextSize(2);
   tft.println(frame);
 }
 
 void tftPrintEngineTemp() {
-  //left, top, width, height
-  tft.fillRect(0, 90, 79, 25, ST7735_BLUE);
   //
   int frame = random(0, 120);
   tft.setTextWrap(false);
-  tft.setCursor(10, 92);
+  tft.setCursor(10, 96);
   if(frame < 65)
-    {tft.setTextColor(ST7735_WHITE);}
+    {tft.setTextColor(ST7735_WHITE, ST7735_BLUE);}
   else if(frame >= 65 && frame <= 95)
-    {tft.setTextColor(ST7735_GREEN);}
+    {tft.setTextColor(ST7735_GREEN, ST7735_BLUE);}
   else if(frame >= 96 && frame <= 110)
-    {tft.setTextColor(ST7735_YELLOW);}    
+    {tft.setTextColor(ST7735_YELLOW, ST7735_BLUE);}    
   else
-    {tft.setTextColor(ST7735_RED);}
-  tft.setTextSize(3);
+    {tft.setTextColor(ST7735_RED, ST7735_BLUE);}
+  tft.setTextSize(2);
   tft.println(frame);
 }
 
 void tftPrintVoltage() {
-  //left, top, width, height
-  tft.fillRect(80, 90, 48, 25, ST7735_BLUE);
   //
   int frame = random(10, 15);
   tft.setTextWrap(false);
   tft.setCursor(84, 96);
-  tft.setTextColor(ST7735_WHITE);
+  tft.setTextColor(ST7735_WHITE, ST7735_BLUE);
   tft.setTextSize(2);
   tft.println(frame);
 }
